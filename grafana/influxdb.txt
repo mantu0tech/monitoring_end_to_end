@@ -1,0 +1,147 @@
+---
+
+# 📊 Grafana Dashboard with InfluxDB
+
+This guide explains how to:
+
+* Install InfluxDB
+* Create databases and insert data
+* Connect InfluxDB to Grafana
+* Create visualizations on a dashboard
+
+---
+
+## 🚀 1. Install InfluxDB
+
+### Add InfluxData Repository (RHEL/CentOS)
+
+```bash
+cat <<EOF | sudo tee /etc/yum.repos.d/influxdata.repo
+[influxdata]
+name = InfluxData Repository - Stable
+baseurl = https://repos.influxdata.com/stable/$basearch/main
+enabled = 1
+gpgcheck = 1
+gpgkey = https://repos.influxdata.com/influxdata-archive_compat.key
+EOF
+```
+
+### Install InfluxDB (Ubuntu/Debian)
+
+```bash
+sudo apt install influxdb*
+```
+
+### Start and Check Service
+
+```bash
+sudo systemctl status influxd
+```
+
+InfluxDB runs on:
+
+```
+http://localhost:8086
+```
+
+---
+
+## 🗄 2. Create Database & Insert Data
+
+Enter InfluxDB CLI:
+
+```bash
+influx
+```
+
+### Create Database
+
+```sql
+CREATE DATABASE mydb
+SHOW DATABASES
+USE mydb
+```
+
+### Insert Sample Data
+
+```sql
+INSERT temperature,location=room value=25
+```
+
+### Query Data
+
+```sql
+SELECT * FROM temperature
+```
+
+---
+
+## 📈 3. Connect InfluxDB to Grafana
+
+1. Open Grafana
+2. Go to **Dashboard**
+3. Click **Add → Visualization**
+4. Click **Add Data Source**
+5. Select **InfluxDB**
+
+### Configure Data Source
+
+* URL: `http://localhost:8086`
+* Database: `mydb`
+* Click **Save & Test**
+
+---
+
+## 📊 4. Create Visualization
+
+After selecting InfluxDB as your data source, use this query:
+
+```sql
+SELECT mean("value")
+FROM "temperature"
+WHERE $timeFilter
+GROUP BY time($__interval)
+```
+
+Click **Run Query**, then save the panel.
+
+---
+
+## 📚 5. Add More Data (Example: School Database)
+
+### Create New Database
+
+```sql
+CREATE DATABASE school
+USE school
+```
+
+### Generate Continuous Random Data (Outside Influx CLI)
+
+Run this in your terminal:
+
+```bash
+while true; do \
+  value=$((RANDOM%100)) \
+  influx -execute "INSERT temperature,room=lab value=$value" -database school \
+  sleep 1 \
+done
+```
+
+This will insert random temperature values every second.
+
+---
+
+## 📊 Query for Continuous Data
+
+Use this query in Grafana:
+
+```sql
+SELECT mean("value")
+FROM "temperature"
+WHERE $timeFilter
+GROUP BY time($__interval) fill(null)
+```
+
+---
+
