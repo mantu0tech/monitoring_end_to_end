@@ -1,0 +1,31 @@
+if you ever colne the project then remove  these files 
+
+.vscode/
+
+.github/
+
+.gitignore
+
+LICENSE
+
+MAINTAINERS
+
+README.md
+docker-compose.yml
+
+docker-compose.images.yml
+
+docker-stack.yml
+healthchecks/
+seed-data/ cross verify onces 
+rchitecture.excalidraw.png
+
+grafana.png
+
+k8s-kind-voting-app.png
+
+prometheus.png
+
+vote/, worker/, result/
+
+not needed these as well
