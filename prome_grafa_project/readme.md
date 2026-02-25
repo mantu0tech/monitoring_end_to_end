@@ -1,106 +1,308 @@
-in these project we are going to deploy and monitor kubernetes application using grafana and prometheus 
+🚀 Kubernetes Observability Project
+Deploy & Monitor Kubernetes Application using Prometheus & Grafana
+📌 Project Overview
 
+In this project, we:
 
-create a ubuntu instance with t2 medium with 20 gb storage 
+Deploy a Kubernetes voting application on a KIND cluster
 
-what is observability 
-it is a combination of monitoring adn logging and tracing and alerting 
+Install Prometheus for monitoring
 
-montoring metrics 
-logging logs 
-tracing >
-alearting >>email notification 
-visualized >> dashboard 
+Install Grafana for visualization
 
-what all folder is important 
-kind-cluster >>commands.mds
-k8s-specifications
+Enable Alerting
 
+Use Helm as package manager
 
-refer these repo 
-https://github.com/LondheShubham153/k8s-kind-voting-app.git for the project 
-clone it and 
+Expose services using NodePort & Port Forwarding
 
-as it is kubernetes application then we need to install docker as well 
+🧠 What is Observability?
 
-its is a kind cluster 
-KIND(its is kubernetes in docker )
+Observability is the combination of:
 
-add docker to the group 
- sudo usermod -aG docker ubuntu && newgrp docker
+Component	Description
+Monitoring	Collecting metrics (CPU, Memory, Network)
+Logging	Capturing logs
+Tracing	Tracking request flow
+Alerting	Email/notification when issue occurs
+Visualization	Dashboards
+🖥️ Step 1: Create AWS EC2 Instance
 
-git clone the repo 
+Create an Ubuntu EC2 instance with:
 
-now go inside the repo and go to kind-cluster folder 
+Instance Type: t2.medium
 
-here you can see the 2 file install kind and kubectl 
+Storage: 20 GB
 
-now run both the file 
-and check the version 
+OS: Ubuntu 22.04
 
- sudo bash install_kubectl.sh
+Security Group: Open the following ports:
 
+Port	Purpose
+22	SSH
+5000	Voting App
+5001	Result App
+9090	Prometheus
+31002	Grafana
+30000	Prometheus NodePort
+31000	Grafana NodePort
+32000	Alertmanager
+32001	Node Exporter
+📁 Project Repository
 
+Reference Repository:
 
-kubectl version 
+👉 https://github.com/LondheShubham153/k8s-kind-voting-app.git
+
+Clone the repository:
+
+git clone https://github.com/LondheShubham153/k8s-kind-voting-app.git
+cd k8s-kind-voting-app
+
+Important Folders:
+
+kind-cluster/
+   ├── install_kind.sh
+   ├── install_kubectl.sh
+   └── commands.md
+
+k8s-specifications/
+🐳 Step 2: Install Docker (Required for KIND)
+
+KIND = Kubernetes IN Docker
+
+sudo apt update
+sudo apt install docker -y
+sudo usermod -aG docker ubuntu && newgrp docker
+
+Verify:
+
+docker --version
+☸️ Step 3: Install kubectl & KIND
+
+Go to:
+
+cd kind-cluster
+
+Install kubectl:
+
+sudo bash install_kubectl.sh
+kubectl version --client
+
+Install KIND:
 
 sudo bash install_kind.sh
-
-kind --version 
-
-run these file to create a cluster 
+kind --version
+🏗️ Step 4: Create KIND Cluster
 kind create cluster --config=config.yml --name=my-cluster
 
-argocd is the simple tool that thake the code(minifiest file ) from github and deploy into your cluster 
+Verify:
 
- now we create  argo cd 
+kubectl get nodes
+🚀 Step 5: Deploy Application
 
-clear 
+Go to k8s specifications:
 
-kubeclt get nodes 
- here you can refer the commands.md in kind-cluster folder 
+cd ../k8s-specifications
+kubectl apply -f .
 
-our application is runnign on port 31002 
+Verify deployment:
 
-go inside the k8s-specification 
+kubectl get all
+🌍 Step 6: Access Application
 
-and type kubeclt apply -f . 
+Forward ports:
 
-and type 
-kubectl get app 
-to get everthing 
+kubectl port-forward service/vote 5000:5000 --address=0.0.0.0 &
+kubectl port-forward service/result 5001:5001 --address=0.0.0.0 &
 
-now your application is running 
-make sure you application is runing for long time 
+Access:
 
-now the application is running 
+http://<EC2-Public-IP>:5000
+http://<EC2-Public-IP>:5001
 
-now we need prometheus menifest file and to run these we need HElm 
-helm is a package manager for kubernetes to install manage and delete  prometheus , argocd and more 
+Make sure app is running continuously.
 
-now to install the helm 
-\
+📦 Step 7: Install Helm
+
+Helm is Kubernetes package manager.
+
 curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
-
-
 chmod 700 get_helm.sh
-
 ./get_helm.sh
 
-helm --version
+Verify:
+
+helm version
+📊 Step 8: Install Prometheus & Grafana
+
+Add repositories:
 
 helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
 helm repo add stable https://charts.helm.sh/stable
 helm repo update
 
+Create namespace:
 
-helm install kind-prometheus prometheus-community/kube-prometheus-stack --namespace monitoring --set prometheus.service.nodePort=30000 --set prometheus.service.type=NodePort --set grafana.service.nodePort=31000 --set grafana.service.type=NodePort --set alertmanager.service.nodePort=32000 --set alertmanager.service.type=NodePort --set prometheus-node-exporter.service.nodePort=32001 --set prometheus-node-exporter.service.type=NodePort
+kubectl create namespace monitoring
 
+Install kube-prometheus-stack:
+
+helm install kind-prometheus prometheus-community/kube-prometheus-stack \
+--namespace monitoring \
+--set prometheus.service.nodePort=30000 \
+--set prometheus.service.type=NodePort \
+--set grafana.service.nodePort=31000 \
+--set grafana.service.type=NodePort \
+--set alertmanager.service.nodePort=32000 \
+--set alertmanager.service.type=NodePort \
+--set prometheus-node-exporter.service.nodePort=32001 \
+--set prometheus-node-exporter.service.type=NodePort
+
+Verify:
 
 kubectl get svc -n monitoring
 kubectl get namespace
+📡 Step 9: Access Prometheus
 
+Port forward:
 
-add all the port number in yoru slides 
+kubectl port-forward svc/kind-prometheus-kube-prome-prometheus -n monitoring 9090:9090 --address=0.0.0.0 &
 
+Access:
 
+http://<EC2-IP>:9090
+
+Check:
+
+Status → Targets
+
+All targets should be UP
+
+🔎 PromQL Queries
+
+Run these in Prometheus → Graph:
+
+CPU Usage
+sum(rate(container_cpu_usage_seconds_total{namespace="default"}[1m])) / sum(machine_cpu_cores) * 100
+Memory Usage
+sum(container_memory_usage_bytes{namespace="default"}) by (pod)
+Network Receive
+sum(rate(container_network_receive_bytes_total{namespace="default"}[5m])) by (pod)
+Network Transmit
+sum(rate(container_network_transmit_bytes_total{namespace="default"}[5m])) by (pod)
+
+Switch to Graph tab to visualize.
+
+📊 Step 10: Access Grafana
+
+Port forward:
+
+kubectl port-forward svc/kind-prometheus-grafana -n monitoring 31002:80 --address=0.0.0.0 &
+
+Access:
+
+http://<EC2-IP>:31002
+🔐 Grafana Login Credentials
+
+Get password:
+
+kubectl get secret kind-prometheus-grafana -n monitoring -o jsonpath="{.data.admin-password}" | base64 --decode && echo
+
+Get username:
+
+kubectl get secret kind-prometheus-grafana -n monitoring -o jsonpath="{.data.admin-user}" | base64 --decode && echo
+
+Default:
+
+Username: admin
+
+Password: (decoded value)
+
+📈 Create Dashboard in Grafana
+
+Go to → Dashboards → New
+
+Add visualization
+
+Select Prometheus datasource
+
+Enter PromQL query
+
+Save dashboard
+
+📥 Import Kubernetes Dashboard
+
+Search in Google: "Kubernetes Grafana Dashboard"
+
+Copy Dashboard ID
+
+Go to Grafana → Dashboards → Import
+
+Enter ID
+
+Select Prometheus datasource
+
+Import
+
+🔔 Alerting (Optional Advanced)
+
+Alertmanager runs on:
+
+http://<EC2-IP>:32000
+
+You can configure email alerts in:
+
+monitoring → alertmanager configuration
+🧹 Cleanup (Delete Everything)
+
+Delete monitoring stack:
+
+helm uninstall kind-prometheus -n monitoring
+kubectl delete namespace monitoring
+
+Delete application:
+
+kubectl delete -f k8s-specifications/
+
+Delete KIND cluster:
+
+kind delete cluster --name my-cluster
+
+Stop EC2 instance or terminate from AWS console.
+
+🏁 Final Architecture
+
+EC2 (Ubuntu)
+→ Docker
+→ KIND Cluster
+→ Voting App
+→ Prometheus
+→ Grafana
+→ Dashboards + Alerts
+
+✅ Project Completed
+
+You have successfully:
+
+✔ Created Kubernetes cluster
+✔ Deployed application
+✔ Installed Prometheus
+✔ Installed Grafana
+✔ Created dashboards
+✔ Ran PromQL queries
+✔ Configured monitoring
+✔ Cleaned up resources
+
+🎉 Congratulations!
+![   
+](image.png)
+
+![
+    
+](image-1.png)
+
+my own that we created 
+![alt text](image-2.png)
+and you are done !!
+now delete everything 
