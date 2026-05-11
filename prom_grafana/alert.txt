@@ -1,0 +1,313 @@
+# Architecture
+
+```text id="z8se2g"
+Node Exporter / Nginx Exporter
+              |
+         Prometheus
+              |
+           Grafana
+              |
+        Email Alerts
+```
+---
+
+# What We Will Configure
+
+| Alert        | Trigger    |
+| ------------ | ---------- |
+| Server DOWN  | up == 0    |
+| High CPU     | > 80%      |
+| High Memory  | > 90%      |
+| Website DOWN | nginx down |
+
+---
+
+# STEP 1: Configure SMTP in Grafana
+
+Open Grafana config:
+
+```bash id="0h4q5v"
+sudo nano /etc/grafana/grafana.ini
+```
+
+Search:
+
+```ini id="p0a8rz"
+[smtp]
+```
+
+Replace with:
+
+```ini id="btx81u"
+[smtp]
+enabled = true
+host = smtp.gmail.com:587
+user = YOUR_GMAIL@gmail.com
+password = YOUR_APP_PASSWORD
+from_address = YOUR_GMAIL@gmail.com
+from_name = Grafana Alerts
+skip_verify = true
+```
+
+---
+
+# IMPORTANT
+
+# Use Gmail App Password
+
+Normal Gmail password will NOT work.
+
+---
+
+# STEP 2: Generate Gmail App Password
+
+Go to:
+
+[Google Account Security](https://myaccount.google.com/security?utm_source=chatgpt.com)
+
+Enable:
+
+```text id="2tr7lp"
+2-Step Verification
+```
+
+Then open:
+
+[Google App Passwords](https://myaccount.google.com/apppasswords?utm_source=chatgpt.com)
+
+Create:
+
+```text id="q8tcc7"
+App Name: grafana
+```
+
+Google gives password like:
+
+```text id="ag55pk"
+abcd efgh ijkl mnop
+```
+
+Use this in Grafana config.
+
+---
+
+# STEP 3: Restart Grafana
+
+```bash id="rx9aq7"
+sudo systemctl restart grafana-server
+```
+
+---
+
+# STEP 4: Login to Grafana
+
+Open:
+
+```text id="jlwmv7"
+http://YOUR_IP:3002
+```
+
+---
+
+# STEP 5: Add Email Contact Point
+
+Go to:
+
+```text id="c6o10n"
+Alerts → Contact Points
+```
+
+Click:
+
+```text id="16i2wl"
+New Contact Point
+```
+
+Select:
+
+```text id="m8p4ci"
+Email
+```
+
+Fill:
+
+| Field     | Value       |
+| --------- | ----------- |
+| Name      | email-alert |
+| Addresses | your email  |
+
+Click:
+
+```text id="ol8dzd"
+Test
+```
+
+You should receive email.
+
+---
+
+# STEP 6: Create Alert Rule
+
+Go:
+
+```text id="7n75f8"
+Alerts → Alert Rules
+```
+
+Click:
+
+```text id="3bskf6"
+New Alert Rule
+```
+
+---
+
+# Example 1: Server DOWN Alert
+
+Query:
+
+```promql id="r3f4go"
+up{job="node-exporter"}
+```
+
+Condition:
+
+```text id="r62g76"
+IS BELOW 1
+```
+
+Evaluation:
+
+```text id="jlwm68"
+For 1 minute
+```
+
+Add contact point:
+
+```text id="7h4g4f"
+email-alert
+```
+
+Save rule.
+
+---
+
+# Example 2: High CPU Alert
+
+Query:
+
+```promql id="jlwm9r"
+100 - (avg by(instance)(rate(node_cpu_seconds_total{mode="idle"}[1m])) * 100)
+```
+
+Condition:
+
+```text id="2c8gnv"
+IS ABOVE 80
+```
+
+For:
+
+```text id="7qtwix"
+2 minutes
+```
+
+Save.
+
+---
+
+# Example 3: High Memory Alert
+
+Query:
+
+```promql id="p0f7xg"
+(node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes) / node_memory_MemTotal_bytes * 100
+```
+
+Condition:
+
+```text id="y0pgo7"
+IS ABOVE 90
+```
+
+Save.
+
+---
+
+# STEP 7: Test Alerts
+
+To test CPU alert:
+
+Run stress command.
+
+Install stress:
+
+```bash id="yzmpm5"
+sudo apt install stress -y
+```
+
+Generate CPU load:
+
+```bash id="sjmpqa"
+stress --cpu 2 --timeout 120
+```
+
+CPU alert should trigger.
+
+Email received.
+
+---
+
+# STEP 8: Verify Alert State
+
+Go:
+
+```text id="jlwmfc"
+Alerts → Alert Rules
+```
+
+States:
+
+| State   | Meaning         |
+| ------- | --------------- |
+| Normal  | Healthy         |
+| Pending | Waiting         |
+| Firing  | Alert triggered |
+
+---
+
+# BONUS
+
+# Monitor Website Availability
+
+If using nginx exporter:
+
+Alert query:
+
+```promql id="nkmx88"
+nginx_up
+```
+
+Condition:
+
+```text id="f8z46k"
+IS BELOW 1
+```
+
+---
+
+# Real DevOps Project Flow
+
+Now your project includes:
+
+✅ Frontend App Monitoring
+✅ EC2 Monitoring
+✅ Prometheus
+✅ Grafana
+✅ Nginx Exporter
+✅ Node Exporter
+✅ Email Alerting
+✅ Custom Dashboards
+✅ AWS Deployment
+
+This becomes a complete DevOps monitoring project for resume/interview/demo.
