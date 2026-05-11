@@ -42,12 +42,14 @@ Replace with:
 [smtp]
 enabled = true
 host = smtp.gmail.com:587
-user = YOUR_GMAIL@gmail.com
-password = YOUR_APP_PASSWORD
-from_address = YOUR_GMAIL@gmail.com
+user = ansari0mantasha786@gmail.com
+password = kavktnkkzbpzkot
+from_address = ansari0mantasha786@gmail.com
 from_name = Grafana Alerts
-skip_verify = true
+skip_verify = false
+startTLS_policy = MandatoryStartTLS
 ```
+
 
 ---
 
@@ -84,7 +86,8 @@ App Name: grafana
 Google gives password like:
 
 ```text id="ag55pk"
-abcd efgh ijkl mnop
+kavk tnkk zbpz kot
+vbfflijinlydqupu
 ```
 
 Use this in Grafana config.
@@ -106,6 +109,7 @@ Open:
 ```text id="jlwmv7"
 http://YOUR_IP:3002
 ```
+
 
 ---
 
@@ -166,6 +170,9 @@ New Alert Rule
 
 Query:
 
+nginx_http_requests_total
+
+value >> 10 
 ```promql id="r3f4go"
 up{job="node-exporter"}
 ```
@@ -197,7 +204,7 @@ Save rule.
 Query:
 
 ```promql id="jlwm9r"
-100 - (avg by(instance)(rate(node_cpu_seconds_total{mode="idle"}[1m])) * 100)
+avg by(instance)(rate(node_cpu_seconds_total[5m])) * 100
 ```
 
 Condition:
@@ -205,35 +212,6 @@ Condition:
 ```text id="2c8gnv"
 IS ABOVE 80
 ```
-
-For:
-
-```text id="7qtwix"
-2 minutes
-```
-
-Save.
-
----
-
-# Example 3: High Memory Alert
-
-Query:
-
-```promql id="p0f7xg"
-(node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes) / node_memory_MemTotal_bytes * 100
-```
-
-Condition:
-
-```text id="y0pgo7"
-IS ABOVE 90
-```
-
-Save.
-
----
-
 # STEP 7: Test Alerts
 
 To test CPU alert:
@@ -251,7 +229,6 @@ Generate CPU load:
 ```bash id="sjmpqa"
 stress --cpu 2 --timeout 120
 ```
-
 CPU alert should trigger.
 
 Email received.
@@ -265,7 +242,7 @@ Go:
 ```text id="jlwmfc"
 Alerts → Alert Rules
 ```
-
+and its done 
 States:
 
 | State   | Meaning         |
@@ -275,39 +252,3 @@ States:
 | Firing  | Alert triggered |
 
 ---
-
-# BONUS
-
-# Monitor Website Availability
-
-If using nginx exporter:
-
-Alert query:
-
-```promql id="nkmx88"
-nginx_up
-```
-
-Condition:
-
-```text id="f8z46k"
-IS BELOW 1
-```
-
----
-
-# Real DevOps Project Flow
-
-Now your project includes:
-
-✅ Frontend App Monitoring
-✅ EC2 Monitoring
-✅ Prometheus
-✅ Grafana
-✅ Nginx Exporter
-✅ Node Exporter
-✅ Email Alerting
-✅ Custom Dashboards
-✅ AWS Deployment
-
-This becomes a complete DevOps monitoring project for resume/interview/demo.

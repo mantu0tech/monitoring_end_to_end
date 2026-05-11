@@ -527,3 +527,8 @@ Refresh every 5s
 and you are done 
 
 jsut import the dashbaord for node and nginx 
+
+
+icase your forgot your grafana  password 
+ sudo grafana cli admin reset-admin-password Admin@123
+ 
