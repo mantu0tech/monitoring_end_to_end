@@ -1,0 +1,41 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: netflix-app
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: netflix-deployment
+  namespace: netflix-app
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: netflix
+  template:
+    metadata:
+      labels:
+        app: netflix
+    spec:
+      containers:
+        - name: netflix-container
+          image: allenaira/netflix:latest
+          ports:
+            - containerPort: 80
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: netflix-service
+  namespace: netflix-app
+spec:
+  type: LoadBalancer
+  selector:
+    app: netflix
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80

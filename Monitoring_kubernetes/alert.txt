@@ -1,0 +1,83 @@
+
+
+kubectl get svc -n prometheus
+kubectl edit svc stable-kube-prometheus-sta-alertmanager -n prometheus
+
+
+kubectl edit svc stable-kube-prometheus-sta-alertmanager -n prometheus
+
+change to LOad balancer here 
+
+qmgokelhhtufyvgh
+
+ansari0mantasha786@gmail.com
+
+nano alertmanager-config.yaml
+
+kubectl apply -f alertmanager-config.yaml
+
+kubectl rollout restart statefulset alertmanager-stable-kube-prometheus-sta-alertmanager -n prometheus
+
+kubectl get pods -n prometheus
+
+nano  pod-alerts.yaml
+
+kubectl apply -f pod-alerts.yaml
+
+kubectl get prometheusrules -n prometheus
+
+Go to:
+
+Alerts
+
+You should see:
+
+PodCrashLooping
+HighCPUUsage
+HighMemoryUsage
+
+
+Step 11: Trigger a Test Alert
+
+Create high CPU load:
+
+kubectl exec -it <pod-name> -n netflix-app -- /bin/sh
+
+Run:
+
+yes > /dev/null
+
+Step 12: Verify Alert in Prometheus
+
+Open Prometheus Alerts page:
+
+http://localhost:9090/alerts
+
+Status changes:
+
+PENDING → FIRING
+Step 13: Verify Alertmanager
+
+Open Alertmanager:
+
+http://localhost:9093
+
+You should see active alerts.
+
+Step 14: Verify Email Alert
+
+You will receive an email like:
+
+[FIRING] HighCPUUsage
+
+check your pods is runnign or not 
+kubectl get pods -n netflix-app
+
+kubectl exec -it netflix-deployment-7ddd668d-75lvg -n netflix-app -- /bin/sh
+
+now run this inside your pods 
+yes > /dev/null
+
+now it will be in pending set and its done now 
+
+
