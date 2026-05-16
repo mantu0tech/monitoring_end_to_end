@@ -226,13 +226,13 @@ Find and comment out the output.elasticsearch section and replace:
 ```
 output.logstash:
   hosts: ["<LOGSTASH_IP>:5044"]
-      ![alt text](image-1.png)
+![alt text](image-5.png)
 ```
 - Step 4.5: Ensure Logstash is listening on port 5044 (ELK)
 
 ```
 do this in the ELK server 
-sudo nano /etc/logstash/conf.d/nginx.conf
+sudo nano /etc/logstash/conf.d/logstash.conf
 ```
 
 Paste these lines and save:
@@ -265,12 +265,12 @@ filter {
 }
 
 output {
-  stdout { codec => rubydebug }
-  # Or send to Elasticsearch
+  stdout { codec => rubydebug}
   # elasticsearch {
-  #   hosts => ["http://localhost:9200"]
-  #   index => "nginx-logs-%{+YYYY.MM.dd}"
-  # }
+  # hosts => ["http://localhost:9200"]
+  # ndex => "nginx-logs-%{+YYYY.MM.dd}"
+  #}
+  
 }
 
 ```
@@ -293,10 +293,6 @@ sudo systemctl status filebeat
 ```
 
 #### Step 5: Deploy Node Application (Server)
-
-https://github.com/mantu0tech/front-end.git
-
-clone it and run your application 
 
 
 - Step 5.1: Create a Vite Boiler Plate project
@@ -322,7 +318,7 @@ Step 5.4: Copy Dist Folder files to Nginx server location
 ```
 cd dist
 
-cp * -r /var/www/html
+sudo cp * -r /var/www/html
 ```
 
 - Step 5.5: Access the node app in browser on port 8080 with public ip of server machine
@@ -338,13 +334,21 @@ now you can access your website
 Open a browser and go to:
 do it from here 
 http://<ELK_Server_Public_IP>:5601
-
+![alt text](image-6.png)
 -----------------------------------
 Pull requests are welcome. For major changes, please open an issue first
 to discuss what you would like to change.
 
-Please make sure to update tests as appropriate.
+click on index pattern
+![alt text](image-7.png)
 
-## License
+go to again on 3 lines and again clikc on discover 
+here it will show you how many times it got clicked 
 
-[MIT](https://choosealicense.com/licenses/mit/)
+![alt text](image-8.png)
+
+if your click on any of the data  then you can see the visualizes 
+![alt text](image-9.png)
+and your are done delete everything!!
+
+
